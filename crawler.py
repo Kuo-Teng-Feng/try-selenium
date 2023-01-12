@@ -79,11 +79,15 @@ def conditioner():
     WebDriverWait(driver, 10, 0.5).until(EC.element_to_be_clickable(ok))
     ok.click()
    
-# to catch:    
+# to catch:
+# class = 's.item__title' brand. ?G or ?GB
 # class = 's.item__link' href=""
 # class = "s-item__price" EUR 199,00
 # class = "s-item__shipping s-item__logisticsCost" EUR 18,00 Versand
-#def catcher():
+def catcher():
+
+    classNames = ['s.item__title', 's.item__link', "s-item__price", "s-item__shipping s-item__logisticsCost"]
+    WebDriverWait(driver,  10, 0.5).until(EC.visibility_of_all_elements_located((By.CLASS_NAME, input_id)))
     
 def all_cookies_accepter():
 
