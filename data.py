@@ -14,8 +14,8 @@ class data:
         self.link = link # str.
         if price == "": # float.
             self.price = 0.0 
-        else:
-            self.price = float(price[price.index("R ") + 2 :].replace(",", ".")) 
+        else: # could be like "1.544,90"
+            self.price = float(price[price.index("R ") + 2 :].replace(".", "").replace(",", ".")) 
         if "los" in fee or fee == "":
             self.fee = 0.0
         else:

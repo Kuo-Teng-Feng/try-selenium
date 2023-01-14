@@ -1,8 +1,12 @@
 import sqlite3
-#from data import data
 
+con = sqlite3.connect("../for_try-selenium/db.db")
+cur = con.cursor()
+    
 def save(l): # l = list of data.
     
+    if len(l) == 0:
+        return
     for o in l:
         _save(o)
 
@@ -18,9 +22,10 @@ def _save(o): # drop the repeated ones.
     gb = o.gb
     distributor = o.distributor
     
-    con = sqlite3.connect("../for_try-selenium/db.db")
-    cur = con.cursor()
-    cur.execute("INSERT INTO crawler(model, _date, title, link, price, fee, cost, gb, distributor) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)", (model, _date, title, link, price, fee, cost, gb, distributor))
+    res = cur.execute("SELECT _date, title, price, gb FROM crawler WHERE _date = ? AND title = ? AND price = ? AND gb = ?", (_date, title, price, gb))
+    if len(res.fetchall()) == 0:
+        cur.execute("INSERT INTO crawler(model, _date, title, link, price, fee, cost, gb, distributor) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)", (model, _date, title, link, price, fee, cost, gb, distributor))
+    
     con.commit()
     cur.close()
     con.close()
