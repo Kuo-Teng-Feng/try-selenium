@@ -36,6 +36,9 @@ class data:
         except:
             start  = title.index("G ") - 3
         
+        if start < 0: # no g or gb mentioned.
+            return 0
+            
         s = title[start : start + 3]
         integer_str = ""
         for ch in s:

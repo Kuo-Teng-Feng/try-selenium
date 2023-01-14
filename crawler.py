@@ -31,11 +31,11 @@ def crawler(keyword): # works only in keyword-form of "str str"
         driver.find_element(By.ID, "gh-btn").submit() # submit button. don't wait for the cookie-accept-or-not popup.
 
 # add conditions, if keyword not precise enough to get an accurate result.
-    conditioner_gdpv(keyword)
-    sleep(2)
-    catcher_gdpv(keyword) # only suits specific conditioner.
+    if conditioner_gdpv(keyword): # if False: no such conditions to choose. results = 0.
+                                  # no need to proceed.
+        catcher_gdpv(keyword) # only suits specific conditioner.
 
-def conditioner_gdpv(keyword):    
+def conditioner_gdpv(keyword): # T or F.
                    
     filters_loc = '#s0-52-12-0-1-2-6 > li.x-refine__main__list--more > span > button'
     filters = driver.find_element(By.CSS_SELECTOR, filters_loc)
@@ -63,44 +63,56 @@ def conditioner_gdpv(keyword):
         except:
             print(f"{keyword} - no {op.text} there to be clicked.")        
         op.click()
-
+        sleep(2) # seems to be not long enough in rush hours.
+        
         mark_ids = steps[op.text] # []
         for id in mark_ids:
             try:
-                sleep(2)
                 mark = driver.find_element(By.ID, id)
+                sleep(2) # EC-dependency causes too much trouble and confusion.
             except:
                 print(f"{keyword} - lack of required condition(s).")
-            #if "ort" in ot: WebDriverWait(driver, 10, 0.5).until(EC.visibility_of_all_elements_located((By.ID, "c3-subPanel")))
-            #if "Zu" in ot: WebDriverWait(driver, 10, 0.5).until(EC.element_to_be_clickable(mark))
-            #if "Ver" in ot: too much trouble and confusion.
-            sleep(2) # Edge needs 2 sec here.
+                return False
             mark.click()
     
 # All options/tags up to serve. Then '#c3-footerId > div.x-overlay-footer__apply > button'
     ok = driver.find_element(By.CSS_SELECTOR, "#c3-footerId > div.x-overlay-footer__apply > button")
     WebDriverWait(driver, 10, 0.5).until(EC.element_to_be_clickable(ok))
     ok.click()
+    return True
 
 def catcher_gdpv(keyword):
     
     while True:
-        _catcher(keyword)
-        #save(_catcher(keyword)) # one page.
-        try: # one by one.
-            _next_page()
-            sleep(2)
-        except:
+        
+        sleep(2)
+        datalist = _catcher(keyword) # one page.
+        save(datalist)
+        
+        # if limit > the num current single page contains, then _next_page().
+        page_limit_lb = "srp-ipp-label-text"
+        page_limit = "#srp-ipp-menu > button > span > span"
+        try: # they may not be found at all, then err thrown.
+            if driver.find_element(By.ID, page_limit_lb).is_displayed() and int(driver.find_element(By.CSS_SELECTOR, page_limit).text) > _limit(keyword):
+                print("next page...")
+                _next_page() # not really checked yet.
+            else: # if all non-precise results to be checked, do the current page only.
+                break
+        except: # only precise results displayed.
             break
 
-def _catcher(keyword): # restricted to one page.
+def _limit(keyword):
     
     limit = -1
     try: # strict results.                               
         limit = int(driver.find_element(By.CSS_SELECTOR, "#mainContent > div.s-answer-region.s-answer-region-center-top > div > div.clearfix.srp-controls__row-2 > div:nth-child(1) > div.srp-controls__control.srp-controls__count > h1 > span:nth-child(1)").text)
     except: # path could be moderated by website maintainer.
         print(f"{keyword} - no results number found.")
+    return limit    
 
+def _catcher(keyword): # restricted to one page.
+    
+    limit = _limit(keyword)
 # 1. data:  #srp-river-results > ul > li:nth-child(2) > div > div.s-item__info.clearfix
 # 1. _date: #srp-river-results > ul > li:nth-child(2) > div > div.s-item__info.clearfix > div.s-item__title--tag > div > span.POSITIVE
 # 1. link:  #srp-river-results > ul > li:nth-child(2) > div > div.s-item__info.clearfix > a
@@ -130,6 +142,7 @@ def _catcher(keyword): # restricted to one page.
         for key in locs:
             
             try:
+                WebDriverWait(driver, 10, 0.5).until(EC.visibility_of_element_located((By.CSS_SELECTOR, locs[key])))
                 we = driver.find_element(By.CSS_SELECTOR, locs[key])
                 wt = we.text
                 if key == "link":
