@@ -1,9 +1,8 @@
-import matplotlib as pl
-
 # title: brand. ?G or ?GB
 # link: href=""
 # price: EUR 199,00
 # shipping fee: EUR 18,00 / Kostenloser Versand
+
 class data:
     
     def __init__(self, model, _date, title, link, price, fee): # all in str.
