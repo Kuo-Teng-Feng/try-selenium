@@ -1,4 +1,5 @@
 import sqlite3
+import math
 import matplotlib.pyplot as P
 from data import data
 
@@ -39,7 +40,12 @@ def date_cost(datalist):
 
 def week_avg(l): # l = val1 = [y[data1._date, ...], x[data1.cost, ...]]
 
-    for 
+    dates = l[0]
+    costs = l[1]
+    n = math.floor(len(dates) / 7)
+
+    wa = {}
+    for i in range(0, n)
 
 
 def sort_by_date(datalist): # of the model.
