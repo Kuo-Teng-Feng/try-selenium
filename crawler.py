@@ -82,24 +82,32 @@ def conditioner_gdpv(keyword): # T or F.
     return True
 
 def catcher_gdpv(keyword):
-    
-    while True:
+# if limit > the num current single page contains, expand.
+    page_limit_lb = "srp-ipp-label-text"
+    expand_btn = "#srp-ipp-menu > button"
+    page_limit = "#srp-ipp-menu > button > span > span"
+    epd_240 = "#s0-52-12-6-3-4\[62\]-26-2-3-content-menu > li:nth-child(2) > a"
         
-        sleep(2)
-        datalist = _catcher(keyword) # one page.
-        save(datalist)
-        
-        # if limit > the num current single page contains, then _next_page().
-        page_limit_lb = "srp-ipp-label-text"
-        page_limit = "#srp-ipp-menu > button > span > span"
-        try: # they may not be found at all, then err thrown.
-            if driver.find_element(By.ID, page_limit_lb).is_displayed() and int(driver.find_element(By.CSS_SELECTOR, page_limit).text) > _limit(keyword):
-                print("next page...")
-                _next_page() # not really checked yet.
-            else: # if all non-precise results to be checked, do the current page only.
-                break
-        except: # only precise results displayed.
-            break
+    try: # they may not be found at all, then err thrown.
+        # actually not checked yet.
+        if driver.find_element(By.ID, page_limit_lb).is_displayed() and int(driver.find_element(By.CSS_SELECTOR, page_limit).text) > _limit(keyword):
+            epd = driver.find_element(By.CSS_SELECTOR, expand_btn)
+            WebDriverWait(driver, 10, 0.5).until(EC.element_to_be_clickable(epd))
+            epd.click()
+            print("click to expand...")
+            sleep(2)
+                
+            expand = driver.find_element(By.CSS_SELECTOR, epd_240)
+            WebDriverWait(driver, 10, 0.5).until(EC.element_to_be_clickable(expand))
+            expand.click()
+            print("expands to max (240 shown in one page).")            
+        # if non-precise results to be checked, do the current page without expansion.
+    except: # only precise results displayed.
+        pass
+
+    sleep(2)
+    datalist = _catcher(keyword) # one page.
+    save(datalist) 
 
 def _limit(keyword):
     
