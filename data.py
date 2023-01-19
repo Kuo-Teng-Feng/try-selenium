@@ -1,3 +1,5 @@
+from save import _formatter
+
 # title: brand. ?G or ?GB
 # link: href=""
 # price: EUR 199,00
@@ -56,6 +58,11 @@ class data:
             if ele in title:
                 return ele
         return "unknown"
+
+    @property
+    def date(self): # from ._date
+
+        return _formatter(self._date)
 
         
         

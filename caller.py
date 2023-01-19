@@ -1,5 +1,4 @@
 import sqlite3
-from save import _formatter #'Verkauft 17. Dez 2022' -> '2022.12.17'. An insurance.
 
 def call():
     
@@ -17,22 +16,18 @@ def call():
     
     return {'model' : model, 'begin' : begin, 'end' : end, 'gb' : gb, 'distributor' : distributor}
 
+def sort_from_db_by_date(model, _from, _to, gb, distributor): # return id list abstracted from db.db
 
-def sort_by_date(model, begin, end, gb, distributor): # return id list abstracted from db.db
-
-    _from = _formatter(begin)
-    _to = _formatter(end)
-
-    con = sqlite3.connect("../for_trx-selenium/db.db")
+    con = sqlite3.connect("../for_try-selenium/db.db")
     cur = con.cursor()
     
-    com = f"SELECT id FROM crawler WHERE model = {model}"
+    com = f"SELECT id FROM crawler WHERE model = '{model}'" # ' in " necessary for str.!
     if gb != 0:
         com += f' AND gb = {gb}'
-    if distributor != ""
-        com += f' AND distributor = {distributor}'
-    com += f" AND date >= {_from} AND date <= {_to} ORDER BY date"
-    
+    if distributor != "":
+        com += f" AND distributor = '{distributor}'" # ' in " necessary for str.!
+    com += f" AND date >= '{_from}' AND date <= '{_to}' ORDER BY date" # ' in " necessary for str.!
+
     res = cur.execute(com)
     l = res.fetchall() # element in this list is always tuple.
     cur.close()
@@ -43,3 +38,5 @@ def sort_by_date(model, begin, end, gb, distributor): # return id list abstracte
         ll.append(ele[0])
 
     return ll # id list.
+
+#print(sort_from_db_by_date("GPU 2080ti", "2023.01.01", "2023.01.19", 0, ""))
