@@ -1,4 +1,6 @@
+import sqlite3
 import matplotlib.pyplot as P
+from save import _formatter #'Verkauft 17. Dez 2022' -> '2022.12.17'.
 from caller import call, sort_by_date
 
 class Graph:
@@ -50,11 +52,6 @@ def date_cost(datalist):
         y.append(d.cost)
 
     return [x, y]
-
-def _formatter(dd): # 'Verkauft 17. Dez 2022' -> '17.12.2022'
-    
-    return dd.replace('Verkauft ', "").replace(' Jan ', '1.').replace(' Feb ', '2.').replace(' Mär ', '3.').replace(' Apr ', '4.').replace(' Mai ', '5.').replace(' Jun ', '6.').replace(' Jul ', '7.').replace(' Aug ', '8.').replace(' Sep ', '9.').replace(' Okt ', '10.').replace(' Nov ', '11.').replace(' Dez ', '12.')
-
 
 #def week_avg(l): # l = val1 = [x[data1._date, ...], y[data1.cost, ...]]
 
