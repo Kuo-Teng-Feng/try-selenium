@@ -14,23 +14,26 @@ class Graph:
     def draw(self):
 
         val = self.val
-        v = val[0] # try one line first.
-        
-        x = v[0]
-        y = v[1]
-        xv = v[2]
-        yv = v[3]
-        P.plot(x, y, linestyle = ":", marker = ".", color = "darkblue", ms = 13)
-        if xv != []: P.xticks(x, xv, rotation = 30)
-        if yv != []: P.yticks(y, yv)
+        v1 = val[0] 
+
+        x1 = v1[0]
+        y1 = v1[1]
+        xv1 = v1[2]
+        yv1 = v1[3]
+        P.plot(x1, y1, linestyle = ":", marker = ".", color = "darkblue", ms = 13)
+
+        for i in range(1, 3):
+            
+            v = val[i] # v2 or v3
+            if v == []: continue
+            P.plot(v[0], v[1], linestyle = "-", marker = "*", color = "blue", ms = 13)
+
+        if xv1 != []: P.xticks(x1, xv1, rotation = 30) # determined once for all.
+        if yv1 != []: P.yticks(y1, yv1) # determined once for all.
         P.xlabel(f"{self.begin} ~ {self.end}", fontsize = 10)
         P.ylabel("final price", fontsize = 10)
         P.title(self.model, fontsize = 16)
         P.show()
-
-#    def _draw(v): # val1 or val2 or val3
-
-
 
 # with sql
 def graphify(ids, gb, distributor): # ids = sort_from_db_by_date(conditions['model'], conditions['begin'], conditions['end'], conditions['gb'], conditions['distributor'])
