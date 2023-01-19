@@ -1,5 +1,5 @@
-import sqlite3
 import matplotlib.pyplot as P
+from caller import call, sort_by_date
 
 class Graph:
 
@@ -12,19 +12,24 @@ class Graph:
 
     def draw(self):
 
-        #val = self.val
-        val = [[[1,2,2,3,4,6,7], [5,6,7,8,9,3,7]]]
+        val = self.val
         P.plot(val[0][0], val[0][1], linestyle = "", marker = ".", color = "darkblue", ms = 13)
-        #P.xlabel(f"{self.begin} ~ {self.end}", fontsize = 10)
-        #P.ylabel("final price", fontsize = 10)
-        #P.title(self.model, fontsize = 12)
+        P.xlabel(f"{self.begin} ~ {self.end}", fontsize = 10)
+        P.ylabel("final price", fontsize = 10)
+        P.title(self.model, fontsize = 16)
         P.show()
 
 g = Graph("test", "begin", "end", [[1,1,2,3,4,4,6,7], [2,5,4,6,8,9,3,7]], [], [])
 g.draw()
 
+# with sql
+conditions = call() # {'model' : model, 'begin' : begin, 'end' : end, 'gb' : gb, 'distributor' : distributor}
+sort_by_date(conditions['model'], conditions['begin'], conditions['end'], conditions['gb'], conditions['distributor'])
+
+
+    
 # with class data as datalist
-def graphify(datalist): # of the same model, in order of _date.
+def graphify(datalist): # of the same model, sort first by ._date with sql.
 
     _from = datalist[0]
     _to = datalist[len(datalist) - 1]
@@ -46,20 +51,13 @@ def date_cost(datalist):
 
     return [x, y]
 
-def _formatter(l):
+def _formatter(dd): # 'Verkauft 17. Dez 2022' -> '17.12.2022'
     
-    
-    return 
+    return dd.replace('Verkauft ', "").replace(' Jan ', '1.').replace(' Feb ', '2.').replace(' Mär ', '3.').replace(' Apr ', '4.').replace(' Mai ', '5.').replace(' Jun ', '6.').replace(' Jul ', '7.').replace(' Aug ', '8.').replace(' Sep ', '9.').replace(' Okt ', '10.').replace(' Nov ', '11.').replace(' Dez ', '12.')
 
 
 #def week_avg(l): # l = val1 = [x[data1._date, ...], y[data1.cost, ...]]
 
+#if __name__ == '__main__':
     
-
-
-#def sort_by_date(datalist): # of the model.
-
-
-
-#con = sqlite3.connect("../for_trx-selenium/db.db")
-#cur = con.cursor()
+    
