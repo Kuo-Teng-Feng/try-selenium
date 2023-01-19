@@ -4,7 +4,7 @@ from caller import call, sort_from_db_by_date
 
 class Graph:
 
-    def __init__(self, model, begin, end, val1, val2, val3): # 3 lines at most.
+    def __init__(self, model, begin, end, val1, val2, val3): # 3 lines at most. end - begin < 2 years.
 
         self.model = model
         self.begin = begin
@@ -20,7 +20,7 @@ class Graph:
         y = v[1]
         xv = v[2]
         yv = v[3]
-        P.plot(x, y, linestyle = "", marker = ".", color = "darkblue", ms = 13)
+        P.plot(x, y, linestyle = ":", marker = ".", color = "darkblue", ms = 13)
         if xv != []: P.xticks(x, xv, rotation = 30)
         if yv != []: P.yticks(y, yv)
         P.xlabel(f"{self.begin} ~ {self.end}", fontsize = 10)
@@ -38,18 +38,14 @@ def graphify(ids, gb, distributor): # ids = sort_from_db_by_date(conditions['mod
     con = sqlite3.connect("../for_try-selenium/db.db")
     cur = con.cursor()
 
-    res = cur.execute(f"SELECT model, date, price FROM crawler WHERE id in {tuple(ids)} ORDER BY date") # tuple(list)!
+    res = cur.execute(f"SELECT model, date, price FROM crawler WHERE id IN {tuple(ids)} ORDER BY date") # tuple(list)!
     l = res.fetchall()
 
     postfix = " "
-    if distributor == "":
-        pass
-    else:
-        posfix += distributor + " "
-    if gb == 0:
-        pass
-    else:
-        postfix += gb + "G"
+    if distributor == "": pass
+    else: posfix += distributor + " "
+    if gb == 0: pass
+    else: postfix += gb + "G"
 
     start = l[0]
     model = start[0] + postfix
@@ -71,17 +67,24 @@ def date_cost(l): # [(model, date, price),...]
     x = []
     xvalues = []
     yvalues = [] # no one line =...=....
+    yyyy = 0
 
     for ele in l:
 
         d = ele[1] # date in str.
         y.append(ele[2]) # price
         xvalues.append(d)
-        mm = d[5:7]
-        dd = d[8:]
-        x.append(float(mm) + float(dd)/31)
 
-    print(x, y, xvalues, yvalues)
+        mm = float(d[5:7])
+        dd = float(d[8:])/31
+        year = int(d[:4])
+
+        if yyyy > 0 and yyyy < year: # cross new year.
+            mm += 12            
+        else: # of the same year.
+            if yyyy == 0: yyyy = year # 1. ele
+        x.append(mm + dd)
+
     return [x, y, xvalues, yvalues]
 
 
@@ -107,16 +110,27 @@ def graphify_datalist(datalist): # of the same model, sort first by date.
 
 def date_cost_from_datalist(datalist):
 
-    y = x = xvalues = yvalues = []
+    y = []
+    x = []
+    xvalues = []
+    yvalues = []
+    yyyy = 0
 
     for d in datalist:
 
-        mmdd = d.date[5:]
-        xvalues.append(mmdd)
-        mm = mmdd[0:2]
-        dd = mmdd[3:]
-        x.append(float(mm) + float(dd)/31)
+        date = d.date
+        xvalues.append(date)
         y.append(d.price)
+
+        mm = float(date[5:7])
+        dd = float(date[8:])/31
+        year = int(date[:4])
+
+        if yyyy > 0 and yyyy < year: # cross new year.
+            mm += 12            
+        else: # of the same year.
+            if yyyy == 0: yyyy = year # 1. ele
+        x.append(mm + dd)        
 
     return [x, y, xvalues, yvalues]
 
