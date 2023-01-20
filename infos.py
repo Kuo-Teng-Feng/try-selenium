@@ -11,8 +11,7 @@ def getter(): # return dict.
     filenames = _name_all()
     for fn in filenames:
         
-        if fn[len(fn) - 3:] != 'txt':
-            continue
+        if fn[len(fn) - 3:] != 'txt': continue
         l = [] # "encoding="utf-8" must be added to avoid UnicodeDecodeError.
         with open(f"../for_try-selenium/{fn}", "r", encoding="utf-8") as file:
             for line in file:

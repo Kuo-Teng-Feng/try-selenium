@@ -2,13 +2,12 @@ import sqlite3
     
 def save(l): # l = list of data.
     
-    if len(l) == 0:
-        return
+    if len(l) == 0: return
+
     for o in l:
-        try:
-            _save(o)
-        except:
-            print("save error", o._date, o.title, o.cost, o.gb, o.distributor)
+
+        try: _save(o)
+        except: print("save error", o._date, o.title, o.cost, o.gb, o.distributor)
 
 def _save(o): 
     
@@ -32,8 +31,7 @@ def _save(o):
         cur.execute("INSERT INTO crawler(model, date, _date, title, link, price, fee, cost, gb, distributor) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (model, date, _date, title, link, price, fee, cost, gb, distributor))
         con.commit()
     # to exclude the repeated and save the right model, 
-    # let for ex. "0000ti" goes be4 "0000", "1111s" be4 "1111" in keywords.
-        
+    # let for ex. "0000ti" goes be4 "0000", "1111s" be4 "1111" in keywords.        
     cur.close()
     con.close()
 
@@ -44,9 +42,8 @@ def _formatter(dd): # 'Verkauft 17. Dez 2022' -> '2022.12.17'. An insurance.
     l.reverse() # alters l self and must be alone standing. 
     ll = []
     for ele in l:
-        if len(ele) == 1:
-            ll.append("0" + ele)
-        else:
-            ll.append(ele)
+        
+        if len(ele) == 1: ll.append("0" + ele)
+        else: ll.append(ele)
 
     return ".".join(ll)

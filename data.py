@@ -13,14 +13,12 @@ class data:
         self._date = _date # str.
         self.title = title # str.
         self.link = link # str.
-        if price == "": # float.
-            self.price = 0.0 
-        else: # could be like "1.544,90"
-            self.price = float(price[price.index("R ") + 2 :].replace(".", "").replace(",", ".")) 
-        if "los" in fee or fee == "":
-            self.fee = 0.0
-        else:
-            self.fee = float(fee[fee.index("R ") + 2 : fee.index("V")].replace(",", ".")) # float.
+
+        if price == "": self.price = 0.0 # float.            
+        else: self.price = float(price[price.index("R ") + 2 :].replace(".", "").replace(",", ".")) # could be like "1.544,90"
+            
+        if "los" in fee or fee == "": self.fee = 0.0            
+        else: self.fee = float(fee[fee.index("R ") + 2 : fee.index("V")].replace(",", ".")) # float.            
 
     @property
     def cost(self): # float
@@ -32,19 +30,15 @@ class data:
         
         title = self.title.replace("gb", "GB").replace("g ", "G ")
         
-        try: 
-            start = title.index("GB") - 3
-        except:
-            start  = title.index("G ") - 3
+        try: start = title.index("GB") - 3
+        except: start  = title.index("G ") - 3
         
-        if start < 0: # no g or gb mentioned.
-            return 0
-            
+        if start < 0: return 0 # no g or gb mentioned.
+
         s = title[start : start + 3]
         integer_str = ""
         for ch in s:
-            if ch.isdigit():
-                integer_str += ch
+            if ch.isdigit(): integer_str += ch
         
         return int(integer_str)
     
@@ -55,8 +49,8 @@ class data:
         title = self.title.lower()
         
         for ele in l:
-            if ele in title:
-                return ele
+            if ele in title: return ele
+            
         return "unknown"
 
     @property

@@ -67,6 +67,7 @@ def conditioner_gdpv(keyword): # T or F.
 # find option by text (between open and close tags), not attribute("value"). 'cause it's not like an input in form?
     l = []
     for option in options:
+
         if option.text in ["Zustand", "Artikelstandort", "Verkäufer", "Nur anzeigen"]:
             l.append(option)
     # Zustand -> Gebraucht "c3-subPanel-LH_ItemCondition_Gebraucht-0_cbx"
@@ -75,16 +76,14 @@ def conditioner_gdpv(keyword): # T or F.
     # Nur anzeigen -> Verkaufte Artikel "c3-subPanel-LH_Sold_Verkaufte%20Artikel-0_cbx"                
     steps = {'Zustand': ["c3-subPanel-LH_ItemCondition_Gebraucht-0_cbx"], "Artikelstandort": ["c3-subPanel-location_Deutschland-0_rbx"], "Verkäufer": ["c3-subPanel-_x-seller[1]_toggler", "c3-subPanel-_x-seller[1]-4[1]-0_rbx"], "Nur anzeigen": ["c3-subPanel-LH_Sold_Verkaufte%20Artikel-0_cbx"]}
     for op in l:
-        try:
-            WebDriverWait(driver, 10, 0.5).until(EC.element_to_be_clickable(op))
-        except:
-            print(f"{keyword} - no {op.text} there to be clicked.")        
+        
+        try: WebDriverWait(driver, 10, 0.5).until(EC.element_to_be_clickable(op))
+        except: print(f"{keyword} - no {op.text} there to be clicked.")        
         op.click()
         sleep(4) # seems to be not long enough in rush hours.
         
         mark_ids = steps[op.text] # []
         for id in mark_ids:
-
             
             try:
                 mark = driver.find_element(By.ID, id)
@@ -121,8 +120,7 @@ def catcher_gdpv(keyword):
             expand.click()
             print("expands to max (240 shown in one page).")            
         # if non-precise results to be checked, do the current page without expansion.
-    except: # only precise results displayed.
-        pass
+    except: pass # only precise results displayed.       
 
     sleep(4)
     datalist = _catcher(keyword) # one page.
@@ -148,8 +146,7 @@ def _catcher(keyword): # restricted to one page.
 # 1. fee:   #srp-river-results > ul > li:nth-child(2) > div > div.s-item__info.clearfix > div.s-item__details.clearfix > div:nth-child(4) > span    
     if limit > 0: # 0 is also to exclude.
         limit = 2 + limit # 1. data start from li:nth-child(2)
-    elif limit == 0: # simply no results.
-        return []
+    elif limit == 0: return [] # simply no results.        
     else: # limit = -1. all results in one page. may try excluding system ads or recommendations later.
         sleep(4)
         limit = len(driver.find_elements(By.CSS_SELECTOR, "#srp-river-results > ul > li"))
@@ -172,12 +169,10 @@ def _catcher(keyword): # restricted to one page.
                 WebDriverWait(driver, 10, 0.5).until(EC.visibility_of_element_located((By.CSS_SELECTOR, locs[key])))
                 we = driver.find_element(By.CSS_SELECTOR, locs[key])
                 wt = we.text
-                if key == "link":
-                    locs[key] = we.get_attribute("href")
-                elif key == "fee" and "Versand" not in wt: # empty logistic cost
-                    locs[key] = ""
-                else:    
-                    locs[key] = wt        
+                if key == "link": locs[key] = we.get_attribute("href")
+                elif key == "fee" and "Versand" not in wt: locs[key] = "" # empty logistic cost                    
+                else: locs[key] = wt
+
             except:
                 locs[key] = ""
                 print(f"{keyword} {n}. result: - no {key} found.")
@@ -207,7 +202,5 @@ if __name__ == "__main__":
     l = infos['keywords']
     
     for keyword in l:
-        try:
-            crawler(keyword)
-        except:
-            print(f"{keyword} - error happened, see above for details.")
+        try: crawler(keyword)
+        except: print(f"{keyword} - error happened, see above for details.")

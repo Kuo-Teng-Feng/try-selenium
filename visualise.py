@@ -82,10 +82,10 @@ def date_cost(l): # [(model, date, price),...]
         dd = float(d[8:])/31
         year = int(d[:4])
 
-        if yyyy > 0 and yyyy < year: # cross new year.
-            mm += 12            
+        if yyyy > 0 and yyyy < year: mm += 12 # cross new year.                        
         else: # of the same year.
             if yyyy == 0: yyyy = year # 1. ele
+
         x.append(mm + dd)
 
     return [x, y, xvalues, yvalues]
@@ -129,10 +129,10 @@ def date_cost_from_datalist(datalist):
         dd = float(date[8:])/31
         year = int(date[:4])
 
-        if yyyy > 0 and yyyy < year: # cross new year.
-            mm += 12            
+        if yyyy > 0 and yyyy < year: mm += 12 # cross new year.                        
         else: # of the same year.
             if yyyy == 0: yyyy = year # 1. ele
+            
         x.append(mm + dd)        
 
     return [x, y, xvalues, yvalues]
