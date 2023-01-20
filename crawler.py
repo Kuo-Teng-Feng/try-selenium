@@ -14,10 +14,8 @@ import infos
 
 infos = infos.getter() # entry, keywords, login as keys in dict. values: list.
 
-try:
-    driver = webdriver.Chrome(ChromeDriverManager().install())
-except:
-    driver = webdriver.Edge(EdgeChromiumDriverManager().install())
+try: driver = webdriver.Chrome(ChromeDriverManager().install())
+except: driver = webdriver.Edge(EdgeChromiumDriverManager().install())
 
 def crawler(keyword): # works only in keyword-form of "str str"
 
@@ -63,13 +61,15 @@ def conditioner_gdpv(keyword): # T or F.
         except:
             print(f"{keyword} - no {op.text} there to be clicked.")        
         op.click()
-        sleep(2) # seems to be not long enough in rush hours.
+        sleep(4) # seems to be not long enough in rush hours.
         
         mark_ids = steps[op.text] # []
         for id in mark_ids:
+
+            
             try:
                 mark = driver.find_element(By.ID, id)
-                sleep(2) # EC-dependency causes too much trouble and confusion.
+                sleep(4) # EC-dependency causes too much trouble and confusion.
             except:
                 print(f"{keyword} - lack of required condition(s).")
                 return False
@@ -95,7 +95,7 @@ def catcher_gdpv(keyword):
             WebDriverWait(driver, 10, 0.5).until(EC.element_to_be_clickable(epd))
             epd.click()
             print("click to expand...")
-            sleep(2)
+            sleep(4)
                 
             expand = driver.find_element(By.CSS_SELECTOR, epd_240)
             WebDriverWait(driver, 10, 0.5).until(EC.element_to_be_clickable(expand))
@@ -105,7 +105,7 @@ def catcher_gdpv(keyword):
     except: # only precise results displayed.
         pass
 
-    sleep(2)
+    sleep(4)
     datalist = _catcher(keyword) # one page.
     save(datalist) 
 
@@ -132,7 +132,7 @@ def _catcher(keyword): # restricted to one page.
     elif limit == 0: # simply no results.
         return []
     else: # limit = -1. all results in one page. may try excluding system ads or recommendations later.
-        sleep(2)
+        sleep(4)
         limit = len(driver.find_elements(By.CSS_SELECTOR, "#srp-river-results > ul > li"))
 
     l = []
@@ -161,7 +161,7 @@ def _catcher(keyword): # restricted to one page.
                     locs[key] = wt        
             except:
                 locs[key] = ""
-                print(f"{keyword} - no {key} found.")
+                print(f"{keyword} {n}. result: - no {key} found.")
         
         l.append(data(keyword, locs["_date"], locs['title'], locs['link'], locs['price'], locs['fee']))
         
