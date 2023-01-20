@@ -14,7 +14,7 @@ class Graph:
     def draw(self):
 
         val = self.val
-        v1 = val[0] 
+        v1 = val[0]
 
         x1 = v1[0]
         y1 = v1[1]
@@ -22,9 +22,9 @@ class Graph:
         yv1 = v1[3]
         P.plot(x1, y1, linestyle = ":", marker = ".", color = "darkblue", ms = 13)
 
-        for i in range(1, 3):
+        for i in range(1, 3): # v2 or v3
             
-            v = val[i] # v2 or v3
+            v = val[i] 
             if v == []: continue
             P.plot(v[0], v[1], linestyle = "-", marker = "*", color = "blue", ms = 13)
 
@@ -55,8 +55,8 @@ def graphify(ids, gb, distributor): # ids = sort_from_db_by_date(conditions['mod
     begin = start[1]
     end = l[len(l)-1][1]
     val1 = date_cost(l)
-    val2 = [] # week_avg(val1) # weekly average
-    val3 = [] # month_avg(val1) # monthly average
+    val2 = [] # week_avg(val1)?
+    val3 = [] # month_avg(val1)? 
 
     cur.close()
     con.close()
@@ -69,7 +69,7 @@ def date_cost(l): # [(model, date, price),...]
     y = []
     x = []
     xvalues = []
-    yvalues = [] # no one line =...=....
+    yvalues = [] # no one line = ... = ....
     yyyy = 0
 
     for ele in l:
@@ -137,7 +137,7 @@ def date_cost_from_datalist(datalist):
 
     return [x, y, xvalues, yvalues]
 
-#def week_avg(l): # l = val1 = [x[data1._date, ...], y[data1.cost, ...]]
+#def week_avg(l): # l = val1 = [x[data1._date, ...], y[data1.cost, ...], xv, yv]
 
 
 # db-based.
@@ -151,5 +151,3 @@ if __name__ == '__main__':
     distributor = conditions['distributor']
     ids = sort_from_db_by_date(model, begin, end, gb, distributor)    
     graphify(ids, gb, distributor).draw() # check if gb or distributor counts as condition.
-
-    #graphify([593, 592], 0, "").draw()
