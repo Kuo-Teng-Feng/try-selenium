@@ -14,8 +14,27 @@ import infos
 
 infos = infos.getter() # entry, keywords, login as keys in dict. values: list.
 
-try: driver = webdriver.Chrome(ChromeDriverManager().install())
-except: driver = webdriver.Edge(EdgeChromiumDriverManager().install())
+def optionsetter(opt): # faster and cleaner without GUI/interface.
+
+    opt.add_argument("--headless")
+    opt.add_argument("--incognito")
+    opt.add_argument("--disable-gpu")
+    opt.add_argument('blink-settings=imagesEnabled=false')
+    #opt.add_argument('')
+
+    return opt
+
+try: 
+    opt = webdriver.ChromeOptions()
+    opt = optionsetter(opt)
+    driver = webdriver.Chrome(ChromeDriverManager().install())
+    driver = webdriver.Chrome(options = opt)
+
+except:
+    opt = webdriver.EdgeOptions()
+    opt = optionsetter(opt)
+    driver = webdriver.Edge(EdgeChromiumDriverManager().install())
+    driver = webdriver.Edge(options = opt)
 
 def crawler(keyword): # works only in keyword-form of "str str"
 
