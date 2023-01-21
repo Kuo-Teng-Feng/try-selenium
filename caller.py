@@ -27,7 +27,7 @@ def sort_from_db_by_date(model, _from, _to, gb, distributor): # return id list a
     con = sqlite3.connect("../for_try-selenium/db.db")
     cur = con.cursor()
     
-    com = f"SELECT id FROM crawler WHERE model LIKE '{model}%'" # ' in " necessary for str.! % belongs here, too.
+    com = f"SELECT id FROM crawler WHERE model LIKE '{model}'" # ' in " necessary for str.! Vaguer: '{model}%'.
     if gb != 0: com += f' AND gb = {gb}'
     if distributor != "": com += f" AND distributor LIKE '{distributor}'" # ' in " necessary for str.!
     com += f" AND date >= '{_from}' AND date <= '{_to}' ORDER BY date" # ' in " necessary for str.!
