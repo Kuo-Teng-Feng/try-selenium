@@ -14,34 +14,35 @@ import re
 
 def optionsetter(opt): # faster and cleaner without GUI/interface.
 
-    opt.add_argument("--headless")
-    opt.add_argument("--incognito")
-    opt.add_argument("--disable-gpu")
-    opt.add_argument('blink-settings=imagesEnabled=false')
+#    opt.add_argument("--headless")
+#    opt.add_argument("--incognito")
+#    opt.add_argument("--disable-gpu")
+#    opt.add_argument('blink-settings=imagesEnabled=false')
     #opt.add_argument('')
-
+    prefs = {
+    'profile.default_content_setting_values' :
+        {
+        'notifications' : 2
+         }
+    }
+    opt.add_experimental_option('prefs', prefs)
     return opt
 
 try: 
     opt = webdriver.ChromeOptions()
-    #opt = optionsetter(opt)
+    opt = optionsetter(opt)
     driver = webdriver.Chrome(ChromeDriverManager().install())
     driver = webdriver.Chrome(options = opt)
 
 except:
     opt = webdriver.EdgeOptions()
-    #opt = optionsetter(opt)
+    opt = optionsetter(opt)
     driver = webdriver.Edge(EdgeChromiumDriverManager().install())
     driver = webdriver.Edge(options = opt)
 
 def crawler(keyword):
-
-    driver.get("https://www.google.com/search?client=opera&q=xiao&sourceid=opera&ie=UTF-8&oe=UTF-8&hs=V6v&tbs=lrf:!1m4!1u3!2m2!3m1!1e1!1m4!1u2!2m2!2m1!1e1!2m1!1e2!2m1!1e3!2m4!1e17!4m2!17m1!1e2!3sIAE,lf:1,lf_ui:9&tbm=lcl&sxsrf=AJOqlzVfFo1XkC9A5f09hJB14j-JsY1ZJg:1675415002432&rflfq=1&num=10&rldimm=18146486695482477482&lqi=CgR4aWFvSIeE2onTrYCACFoKEAAYACIEeGlhb5IBEWJ1ZmZldF9yZXN0YXVyYW50mgEkQ2hkRFNVaE5NRzluUzBWSlEwRm5TVVIxTTI4eU5UTkJSUkFCqgEMEAEqCCIEeGlhbyhF&phdesc=FAU8_Opu34w&ved=2ahUKEwiZ1sig__j8AhVggv0HHQQKAPkQvS56BAgLEAE&sa=X&rlst=f#rlfi=hd:;si:18146486695482477482,l,CgR4aWFvSIeE2onTrYCACFoKEAAYACIEeGlhb5IBEWJ1ZmZldF9yZXN0YXVyYW50mgEkQ2hkRFNVaE5NRzluUzBWSlEwRm5TVVIxTTI4eU5UTkJSUkFCqgEMEAEqCCIEeGlhbyhF,y,FAU8_Opu34w;mv:[[51.99692691642221,7.6851771800781155],[51.02606091560833,4.7298549144531155],null,[51.51408037099575,6.2075160472656155],9];tbs:lrf:!1m4!1u3!2m2!3m1!1e1!1m4!1u2!2m2!2m1!1e1!2m1!1e2!2m1!1e3!2m4!1e17!4m2!17m1!1e2!3sIAE,lf:1,lf_ui:9")
-# Edge cookie accepter is annoying.
-#    WebDriverWait(driver, 10, 0.5).until(EC.visibility_of_element_located((By.CSS_SELECTOR, "#yDmH0d > c-wiz > div > div > div > div.NIoIEf > div.G4njw > div.AIC7ge > div.CxJub > div.FCY2lb > form:nth-child(1) > div > div > button")))
-#    accept = driver.find_element(By.CSS_SELECTOR, "#yDmH0d > c-wiz > div > div > div > div.NIoIEf > div.G4njw > div.AIC7ge > div.CxJub > div.FCY2lb > form:nth-child(1) > div > div > button")
-#    WebDriverWait(driver, 10, 0.5).until(EC.element_to_be_clickable(accept))
-#    accept.click()
+# directly consent?
+    driver.get("https://consent.google.com/m?continue=https://www.google.com/search%3Fclient%3Dopera%26q%3Dxiao%26sourceid%3Dopera%26ie%3DUTF-8%26oe%3DUTF-8%26hs%3DV6v%26tbs%3Dlrf:!1m4!1u3!2m2!3m1!1e1!1m4!1u2!2m2!2m1!1e1!2m1!1e2!2m1!1e3!2m4!1e17!4m2!17m1!1e2!3sIAE,lf:1,lf_ui:9%26tbm%3Dlcl%26sxsrf%3DAJOqlzVfFo1XkC9A5f09hJB14j-JsY1ZJg:1675415002432%26rflfq%3D1%26num%3D10%26rldimm%3D18146486695482477482%26lqi%3DCgR4aWFvSIeE2onTrYCACFoKEAAYACIEeGlhb5IBEWJ1ZmZldF9yZXN0YXVyYW50mgEkQ2hkRFNVaE5NRzluUzBWSlEwRm5TVVIxTTI4eU5UTkJSUkFCqgEMEAEqCCIEeGlhbyhF%26phdesc%3DFAU8_Opu34w%26ved%3D2ahUKEwiZ1sig__j8AhVggv0HHQQKAPkQvS56BAgLEAE%26sa%3DX%26rlst%3Df&gl=DE&m=0&pc=srp&uxe=none&hl=zh-TW&src=1#rlfi=hd:;si:18146486695482477482,l,CgR4aWFvSIeE2onTrYCACFoKEAAYACIEeGlhb5IBEWJ1ZmZldF9yZXN0YXVyYW50mgEkQ2hkRFNVaE5NRzluUzBWSlEwRm5TVVIxTTI4eU5UTkJSUkFCqgEMEAEqCCIEeGlhbyhF,y,FAU8_Opu34w;mv:[[51.99692691642221,7.6851771800781155],[51.02606091560833,4.7298549144531155],null,[51.51408037099575,6.2075160472656155],9];tbs:lrf:!1m4!1u3!2m2!3m1!1e1!1m4!1u2!2m2!2m1!1e1!2m1!1e2!2m1!1e3!2m4!1e17!4m2!17m1!1e2!3sIAE,lf:1,lf_ui:9")
 
     review = "#akp_tsuid_29 > div > div:nth-child(1) > div > g-sticky-content-container > div > block-component > div > div.dG2XIf.knowledge-panel.Wnoohf.OJXvsb > div > div > div > div.ifM9O > div > div > div:nth-child(5) > div.AfIYPc > g-sticky-content > div > div.YoOupc.UxY8gd.E0kSRb.xSizI > g-tabs > div > div > a:nth-child(4) > div.SVWlSe.t35a5d > span"
     WebDriverWait(driver, 10, 0.5).until(EC.element_to_be_clickable(driver.find_element(By.CSS_SELECTOR, review)))
