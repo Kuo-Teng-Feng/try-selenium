@@ -1,7 +1,7 @@
 from webdriver_manager.microsoft import EdgeChromiumDriverManager 
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium import webdriver
-#from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.action_chains import ActionChains, ScrollOrigin
 from selenium.webdriver.common.by import By
 #from selenium.webdriver.common.keys import Keys
 #from selenium.webdriver.support.select import Select
@@ -34,7 +34,7 @@ except:
     driver = webdriver.Edge(EdgeChromiumDriverManager().install())
     driver = webdriver.Edge(options = opt)
 
-#AC = ActionChains(driver)    
+AC = ActionChains(driver)    
 
 def crawler():
 
@@ -48,54 +48,79 @@ def crawler():
 
 def parser(keyword, rounds): # 10 reviews checked / round.
 
-    for i in range(0, rounds):
+    blocks = ["#reviewSort > div:nth-child(1) > div.gws-localreviews__general-reviews-block > div:nth-child({}) > div.jxjCjc"]
+    
+    for i in range(0, rounds): # check 10 reviews / round
 
         sleep(2)
         print(i, "round:")
-        _parser(keyword)
-        #block = driver.find_element(By.ID, "reviewSort")
-        #driver.execute_script("arguments[0].scrollTop = arguments[0].scrollHeight", block)
+        _parser(keyword, blocks)        
 
-def _parser(keyword): # > 10 must scroll down.
+def _parser(keyword, blocks): # > 10 must scroll down.
 
     #driver.execute_script("""document.addEventListener('DOMContentLoaded', () => {
     #const ms = document.querySelector(".review-more-link");
     #for (let i = 0; i < 10; i++) { ms[i].setAttribute("aria-expanded", "true");}
-    #})""")
-    #sleep(2)
+    #})""") not working.
+    AC.scroll_to_element(driver.find_element(By.CSS_SELECTOR, blocks[len(blocks)-1].format(1))).perform()
+    
     WebDriverWait(driver, 10, 0.5).until(EC.visibility_of_any_elements_located((By.CLASS_NAME, "review-more-link")))
     exps = driver.find_elements(By.CLASS_NAME, "review-more-link")
-    for i in range(0, len(exps)): # <= n of 10 reviews. 0-2 exps in each review.
-        exps[i].click()
+
+    for exp in exps: # <= n of 10 reviews. 0-2 exps in each review.
+        WebDriverWait(driver, 10, 0.5).until(EC.element_to_be_clickable(exp))
+        driver.execute_script('arguments[0].scrollIntoView(false);', exp) # did move.
+        exp.click()
         sleep(1)
 
     for i in range(1, 11): # > 10 requires reloading.
-#reviewSort > div:nth-child(3) > div.gws-localreviews__general-reviews-block
-        base = f"#reviewSort > div:nth-child(1) > div.gws-localreviews__general-reviews-block > div:nth-child({i}) > div.jxjCjc > "
 
-        time_css = base + "div:nth-child(4) > div.PuaHbe > span.dehysf.lTi8oc"
-        WebDriverWait(driver, 10, 0.5).until(EC.visibility_of_element_located((By.CSS_SELECTOR, time_css)))
-        _date = driver.find_element(By.CSS_SELECTOR, time_css).text   
+        base = blocks[len(blocks)-1].format(i)
 
-        star_css = base + "div:nth-child(4) > div.PuaHbe > g-review-stars > span"
-        WebDriverWait(driver, 10, 0.5).until(EC.visibility_of_element_located((By.CSS_SELECTOR, star_css)))
-        star = driver.find_element(By.CSS_SELECTOR, star_css).get_attribute("aria-label")
-        stars = int(re.sub(r"\(.+\)|[\D0\.]", "", star))
-        
-        person_css = base + "div:nth-child(1) > div > a"
+        person_css = base + " > div:nth-child(1) > div > a"
         WebDriverWait(driver, 10, 0.5).until(EC.visibility_of_element_located((By.CSS_SELECTOR, person_css)))
         person = driver.find_element(By.CSS_SELECTOR, person_css).get_attribute("href")
 
-        txt_css = base + "div:nth-child(4) > div.Jtu6Td > span > span > span:nth-child(1) > span"
-        WebDriverWait(driver, 10, 0.5).until(EC.visibility_of_element_located((By.CSS_SELECTOR, txt_css)))
-        txt = driver.find_element(By.CSS_SELECTOR, txt_css) # no text if no exp or simply no text at all.
-        text = txt.text
-        if keyword in text: 
-            print(_date, datedealer(_date), stars)
-            #save(keyword, _date, stars, text, person)
-        
+        time_css = base + " > div:nth-child(4) > div.PuaHbe > span.dehysf.lTi8oc"
+        WebDriverWait(driver, 10, 0.5).until(EC.visibility_of_element_located((By.CSS_SELECTOR, time_css)))
+        _date = driver.find_element(By.CSS_SELECTOR, time_css).text   
 
-    driver.execute_script('arguments[0].scrollIntoView(true);', last) # fix the last point to reload.
+        star_css = base + " > div:nth-child(4) > div.PuaHbe > g-review-stars > span"
+        WebDriverWait(driver, 10, 0.5).until(EC.visibility_of_element_located((By.CSS_SELECTOR, star_css)))
+        star = driver.find_element(By.CSS_SELECTOR, star_css).get_attribute("aria-label")
+        stars = int(re.sub(r"\(.+\)|[\D0\.]", "", star))
+
+        txt_css = base + " > div:nth-child(4) > div.Jtu6Td > span > span > span:nth-child(1) > span"
+        try: # if none, then pass.
+            WebDriverWait(driver, 10, 0.5).until(EC.visibility_of_element_located((By.CSS_SELECTOR, txt_css)))
+            text = driver.find_element(By.CSS_SELECTOR, txt_css).text # no text if no exp or simply no text at all.
+            if keyword in text: 
+                print(_date, datedealer(_date), stars)
+                #save(keyword, _date, stars, text, person)
+        except: pass
+
+    _scrolldown(blocks)
+
+def _scrolldown(blocks):
+
+    #driver.execute_script("arguments[0].scrollTop = arguments[0].scrollHeight", btm) # not working?
+    AC.scroll_from_origin(ScrollOrigin.from_element(driver.find_element(By.ID, "reviewSort")), 0, 3000).perform()
+    sleep(1)
+    former = blocks[len(blocks)-1]
+    next = re.sub(r"\d+", "{}", former.format(1), count=1)
+    _from = int(re.search(r"\d+", former).group(0)) 
+    for i in range(_from + 1, 100): # start checking from #reviewSort > div:nth-child(n+1)...
+
+        block_css = next.format(i)
+        print(block_css)
+
+        try:
+            WebDriverWait(driver, 10, 0.5).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, block_css)))
+            blocks.append(block_css.replace("div:nth-child(1) > div.jxjCjc", "div:nth-child({}) > div.jxjCjc"))
+            break
+
+        except: pass # if no such review-block. could be <script> ...etc.
+    print(blocks)
 
 def save(keyword, _date, stars, text, person):
 
