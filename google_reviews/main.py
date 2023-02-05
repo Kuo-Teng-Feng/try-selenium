@@ -1,7 +1,7 @@
 from webdriver_manager.microsoft import EdgeChromiumDriverManager 
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium import webdriver
-from selenium.webdriver.common.action_chains import ActionChains
+#from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
 #from selenium.webdriver.common.keys import Keys
 #from selenium.webdriver.support.select import Select
@@ -34,7 +34,7 @@ except:
     driver = webdriver.Edge(EdgeChromiumDriverManager().install())
     driver = webdriver.Edge(options = opt)
 
-AC = ActionChains(driver)    
+#AC = ActionChains(driver)    
 
 def crawler():
 
@@ -46,26 +46,31 @@ def crawler():
     
     return True
 
-def parser(keyword, limit):
+def parser(keyword, rounds): # 10 reviews checked / round.
 
-    N = 11
-    for i in range(0, limit):
+    for i in range(0, rounds):
+
+        sleep(2)
         print(i, "round:")
-        _parser(keyword, N)
-        N += 10
-        #driver.execute_script("window.scrollBy(0, document.documentElement.scrollHeight)")
-        #AC.
-        #sleep(2)
+        _parser(keyword)
+        #block = driver.find_element(By.ID, "reviewSort")
+        #driver.execute_script("arguments[0].scrollTop = arguments[0].scrollHeight", block)
 
-def _parser(keyword, N): # > 10 must scroll down.
+def _parser(keyword): # > 10 must scroll down.
 
-    WebDriverWait(driver, 10, 0.5).until(EC.visibility_of_all_elements_located((By.CLASS_NAME, "review-more-link")))
-    for exp in driver.find_elements(By.CLASS_NAME, "review-more-link"):
-        exp.click()
+    #driver.execute_script("""document.addEventListener('DOMContentLoaded', () => {
+    #const ms = document.querySelector(".review-more-link");
+    #for (let i = 0; i < 10; i++) { ms[i].setAttribute("aria-expanded", "true");}
+    #})""")
+    #sleep(2)
+    WebDriverWait(driver, 10, 0.5).until(EC.visibility_of_any_elements_located((By.CLASS_NAME, "review-more-link")))
+    exps = driver.find_elements(By.CLASS_NAME, "review-more-link")
+    for i in range(0, len(exps)): # <= n of 10 reviews. 0-2 exps in each review.
+        exps[i].click()
         sleep(1)
 
-    for i in range(N-10, N): 
-
+    for i in range(1, 11): # > 10 requires reloading.
+#reviewSort > div:nth-child(3) > div.gws-localreviews__general-reviews-block
         base = f"#reviewSort > div:nth-child(1) > div.gws-localreviews__general-reviews-block > div:nth-child({i}) > div.jxjCjc > "
 
         time_css = base + "div:nth-child(4) > div.PuaHbe > span.dehysf.lTi8oc"
@@ -83,10 +88,14 @@ def _parser(keyword, N): # > 10 must scroll down.
 
         txt_css = base + "div:nth-child(4) > div.Jtu6Td > span > span > span:nth-child(1) > span"
         WebDriverWait(driver, 10, 0.5).until(EC.visibility_of_element_located((By.CSS_SELECTOR, txt_css)))
-        text = driver.find_element(By.CSS_SELECTOR, txt_css).text
+        txt = driver.find_element(By.CSS_SELECTOR, txt_css) # no text if no exp or simply no text at all.
+        text = txt.text
         if keyword in text: 
             print(_date, datedealer(_date), stars)
             #save(keyword, _date, stars, text, person)
+        
+
+    driver.execute_script('arguments[0].scrollIntoView(true);', last) # fix the last point to reload.
 
 def save(keyword, _date, stars, text, person):
 
@@ -109,10 +118,11 @@ def old_crawler(keyword):
 
     review_css = "#akp_tsuid_29 > div > div:nth-child(1) > div > g-sticky-content-container > div > block-component > div > div.dG2XIf.knowledge-panel.Wnoohf.OJXvsb > div > div > div > div.ifM9O > div > div > div:nth-child(5) > div.AfIYPc > g-sticky-content > div > div.YoOupc.UxY8gd.E0kSRb.xSizI > g-tabs > div > div > a:nth-child(4)"
     WebDriverWait(driver, 10, 0.5).until(EC.presence_of_element_located((By.CSS_SELECTOR, review_css)))
-    review = WebDriverWait(driver, 10, 0.5).until(EC.element_to_be_clickable(driver.find_element(By.CSS_SELECTOR, review_css)))                                             
-    AC.move_to_element(review).click().scroll_by_amount(0, 2000).perform()
+    review = driver.find_element(By.CSS_SELECTOR, review_css)
+    WebDriverWait(driver, 10, 0.5).until(EC.element_to_be_clickable(review))                                             
+    review.click()
     driver.execute_script("window.scrollBy(0, document.documentElement.scrollHeight)")
-    sleep(6)  
+    sleep(1)
     #_recent()
     return True
 
