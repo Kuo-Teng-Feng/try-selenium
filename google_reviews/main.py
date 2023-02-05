@@ -62,8 +62,7 @@ def _parser(keyword, blocks): # > 10 must scroll down.
     #const ms = document.querySelector(".review-more-link");
     #for (let i = 0; i < 10; i++) { ms[i].setAttribute("aria-expanded", "true");}
     #})""") not working.
-    AC.scroll_to_element(driver.find_element(By.CSS_SELECTOR, blocks[len(blocks)-1].format(1))).perform()
-    
+    # The way to expand is to modify?
     WebDriverWait(driver, 10, 0.5).until(EC.visibility_of_any_elements_located((By.CLASS_NAME, "review-more-link")))
     exps = driver.find_elements(By.CLASS_NAME, "review-more-link")
 
@@ -108,7 +107,8 @@ def _scrolldown(blocks):
     sleep(1)
     former = blocks[len(blocks)-1]
     next = re.sub(r"\d+", "{}", former.format(1), count=1)
-    _from = int(re.search(r"\d+", former).group(0)) 
+    _from = int(re.search(r"\d+", former).group(0))
+
     for i in range(_from + 1, 100): # start checking from #reviewSort > div:nth-child(n+1)...
 
         block_css = next.format(i)
@@ -120,7 +120,9 @@ def _scrolldown(blocks):
             break
 
         except: pass # if no such review-block. could be <script> ...etc.
-    print(blocks)
+    #print(blocks)
+    psudocieling = driver.find_element(By.CSS_SELECTOR, blocks[len(blocks)-1].format(1) + " > div:nth-child(1) > div > a") # 1. person of the next block.
+    driver.execute_script('arguments[0].scrollIntoView();', psudocieling)
 
 def save(keyword, _date, stars, text, person):
 
