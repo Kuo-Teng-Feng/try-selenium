@@ -3,8 +3,6 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium import webdriver
 from selenium.webdriver.common.action_chains import ActionChains, ScrollOrigin
 from selenium.webdriver.common.by import By
-#from selenium.webdriver.common.keys import Keys
-#from selenium.webdriver.support.select import Select
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 from time import sleep
@@ -14,7 +12,7 @@ import re
 
 def optionsetter(opt): # faster and cleaner without GUI/interface.
 
-    #opt.add_argument("--headless")
+    opt.add_argument("--headless")
     opt.add_argument("--incognito")
     opt.add_argument('blink-settings=imagesEnabled=false')
     #opt.add_argument('')
@@ -43,35 +41,35 @@ def crawler():
     accept = driver.find_element(By.ID, "L2AGLb")
     WebDriverWait(driver, 10, 0.5).until(EC.element_to_be_clickable(accept))
     accept.click()
-    
+# default: relevance.    
+
+
     return True
 
 def parser(keyword, rounds): # 10 reviews checked / round.
 
     blocks = ["#reviewSort > div:nth-child(1) > div.gws-localreviews__general-reviews-block > div:nth-child({}) > div.jxjCjc"]
-    
-    for i in range(0, rounds): # check 10 reviews / round
 
+    for i in range(0, rounds): # check 10 reviews / round
+#        if i == 0: # expand the first 10 once. Necessary?
+#            WebDriverWait(driver, 10, 0.5).until(EC.visibility_of_any_elements_located((By.CLASS_NAME, "review-more-link")))
+#            exps = driver.find_elements(By.CLASS_NAME, "review-more-link")
+
+#            for exp in exps: # <= n of 10 reviews. 0-2 exps in each review.
+#                WebDriverWait(driver, 10, 0.5).until(EC.element_to_be_clickable(exp))
+#                driver.execute_script('arguments[0].scrollIntoView(false);', exp) # did move.
+#                exp.click()
+#                sleep(1)       
         sleep(2)
         print(i, "round:")
         _parser(keyword, blocks)        
 
 def _parser(keyword, blocks): # > 10 must scroll down.
-
     #driver.execute_script("""document.addEventListener('DOMContentLoaded', () => {
     #const ms = document.querySelector(".review-more-link");
     #for (let i = 0; i < 10; i++) { ms[i].setAttribute("aria-expanded", "true");}
     #})""") not working.
     # The way to expand is to modify?
-    WebDriverWait(driver, 10, 0.5).until(EC.visibility_of_any_elements_located((By.CLASS_NAME, "review-more-link")))
-    exps = driver.find_elements(By.CLASS_NAME, "review-more-link")
-
-    for exp in exps: # <= n of 10 reviews. 0-2 exps in each review.
-        WebDriverWait(driver, 10, 0.5).until(EC.element_to_be_clickable(exp))
-        driver.execute_script('arguments[0].scrollIntoView(false);', exp) # did move.
-        exp.click()
-        sleep(1)
-
     for i in range(1, 11): # > 10 requires reloading.
 
         base = blocks[len(blocks)-1].format(i)
@@ -89,19 +87,26 @@ def _parser(keyword, blocks): # > 10 must scroll down.
         star = driver.find_element(By.CSS_SELECTOR, star_css).get_attribute("aria-label")
         stars = int(re.sub(r"\(.+\)|[\D0\.]", "", star))
 
+        exp_css = base + " > div:nth-child(4) > div.Jtu6Td > span > span > a"
+        try: 
+            exp = driver.find_element(By.CSS_SELECTOR, exp_css)
+            WebDriverWait(driver, 10, 0.5).until(EC.element_to_be_clickable(exp))
+            exp.click()
+            sleep(1)
+        except: pass
+
         txt_css = base + " > div:nth-child(4) > div.Jtu6Td > span > span > span:nth-child(1) > span"
         try: # if none, then pass.
             WebDriverWait(driver, 10, 0.5).until(EC.visibility_of_element_located((By.CSS_SELECTOR, txt_css)))
             text = driver.find_element(By.CSS_SELECTOR, txt_css).text # no text if no exp or simply no text at all.
             if keyword in text: 
                 print(_date, datedealer(_date), stars)
-                #save(keyword, _date, stars, text, person)
+                save(keyword, _date, stars, text, person)
         except: pass
 
     _scrolldown(blocks)
 
 def _scrolldown(blocks):
-
     #driver.execute_script("arguments[0].scrollTop = arguments[0].scrollHeight", btm) # not working?
     AC.scroll_from_origin(ScrollOrigin.from_element(driver.find_element(By.ID, "reviewSort")), 0, 3000).perform()
     sleep(1)
@@ -120,7 +125,7 @@ def _scrolldown(blocks):
             break
 
         except: pass # if no such review-block. could be <script> ...etc.
-    #print(blocks)
+
     psudocieling = driver.find_element(By.CSS_SELECTOR, blocks[len(blocks)-1].format(1) + " > div:nth-child(1) > div > a") # 1. person of the next block.
     driver.execute_script('arguments[0].scrollIntoView();', psudocieling)
 
@@ -128,16 +133,18 @@ def save(keyword, _date, stars, text, person):
 
     con = sqlite3.connect("db.db")
     cur = con.cursor()
-    cur.execute("INSERT INTO reviewXiao(keyword, date, _date, stars, text, person) VALUES(?, ?, ?, ?, ?, ?)", (keyword, datedealer(_date), _date, stars, text, person))
-    con.commit()
+
+    res = cur.execute("SELECT keyword, text, person FROM reviewXiao WHERE keyword = ? AND text = ? AND person = ?", (keyword, text, person))
+    if len(res.fetchall()) == 0:
+        cur.execute("INSERT INTO reviewXiao(keyword, date, _date, stars, text, person) VALUES(?, ?, ?, ?, ?, ?)", (keyword, datedealer(_date), _date, stars, text, person))
+        con.commit()
+
     cur.close()
     con.close()
 
 if __name__ == "__main__":
-
-    #try: 
-    if crawler(): parser("sushi", 10) # 10 * 10 reviews to check.
-    #except: print(f"{keyword} - error happened, see above for details.")
+ 
+    if crawler(): parser("sushi", 100) # n * 10 reviews to check.
 
 def old_crawler(keyword):
 # directly consent?
